@@ -64,30 +64,8 @@ class Eyes:
                      if m.id == self.bot.settings.owner)
         self.eyes_bell_me.help = self.eyes_bell_me.help.format(owner.name)
 
-    """
-    def can_bell(self, channel_or_server):
-        cs = channel_or_server
-        bells = self.settings['BELLS']
-        return self.bell_id(channel_or_server) in bells"""
-
-    def bell_id(self, channel_or_server):
-        cs = channel_or_server
-        if isinstance(cs, discord.Server):
-            return 'S' + cs.id
-        return cs.id
-
     def save(self):
         return dataIO.save_json(SETTINGS_PATH, self.settings)
-
-    def highlight_me(self, content, server):
-        resume = C.ENDC
-        if content.startswith(C.WARNING):
-            resume = C.WARNING
-        if content.startswith(C.FAIL):
-            resume = C.FAIL
-        return re.sub(self.settings['BELL_PATTERN'],
-                      C.ENDC + C.BELL + C.OKBLUE + r'\g<0>' + resume,
-                      content)
 
     async def respond(self, yes):
         if yes:
@@ -279,14 +257,43 @@ class Eyes:
             return await self.bot.say(":bell: on `{}`\n".format(pattern))
         await self.bot.say(":no_bell: on {}".format(pattern))
 
+    def log_toggled(self, channel: discord.Channel):
+        serv_sets = self.settings['SERVERS']
+        chan_sets = self.settings['CHANNELS']
+        return channel.id in chan_sets or channel.server.id in serv_sets
+
+    def bell_toggled(self, channel_or_server):
+        ids = [self.bell_id(channel_or_server)]
+        try:
+            ids.append(self.bell_id(channel_or_server.server))
+        except AttributeError:
+            pass
+        return any(d for d in in ids if d in self.settings['BELLS'])
+
+    def bell_id(self, channel_or_server):
+        cs = channel_or_server
+        if isinstance(cs, discord.Server):
+            return 'S' + cs.id
+        return cs.id
+
     def get_content(m):
         if not m.clean_content:
             embed = [e for e in m.embeds if e['type'] == 'rich']  # ?
             return pad('[EMBED] TITLE: ' + embed['title'])
         return pad(content)
 
-    async def on_message(self, m):
-        if m.server.id != '133049272517001216':
+    def highlight_me(self, content, server):
+        resume = C.ENDC
+        if content.startswith(C.WARNING):
+            resume = C.WARNING
+        if content.startswith(C.FAIL):
+            resume = C.FAIL
+        return re.sub(self.settings['BELL_PATTERN'],
+                      C.ENDC + C.BELL + C.OKBLUE + r'\g<0>' + resume,
+                      content)
+
+    async def on_message(self, msg):
+        if not self.log_toggled(msg.channel):
             return
 
         c = self.highlight_me(pad(m.clean_content))

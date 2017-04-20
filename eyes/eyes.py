@@ -278,9 +278,9 @@ class Eyes:
 
     def get_content(m):
         if not m.clean_content:
-            embed = [e for e in m.embeds if e['type'] == 'rich']  # ?
+            embed = next(e for e in m.embeds if e['type'] == 'rich')  # ?
             return pad('[EMBED] TITLE: ' + embed['title'])
-        return pad(content)
+        return pad(m.clean_content)
 
     def highlight_me(self, content, server):
         resume = C.ENDC

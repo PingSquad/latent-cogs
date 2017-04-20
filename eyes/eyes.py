@@ -205,6 +205,8 @@ class Eyes:
     async def eyes_bell_user(self, ctx, user: discord.Member=None):
         """👀 🔔/🔕 👤
         leave blank to list users
+
+        user converted to @?{@users_id.display_name} in regex
         use "[p]eyes bell me" for cross-server alerts for yourself"""
         server = ctx.message.server
         empty = deepcopy(EMPTY_REGEX_SETS)
@@ -215,7 +217,8 @@ class Eyes:
                 await self.bot.say('nobody :no_bell:')
             else:
                 msg = ':bell: on: '
-                msg += ', '.join(user_pats)
+                msg += ', '.join([str(server.get_member(uid))
+                                  for uid in user_pats])
                 await self.bot.say(msg)
             return
 
@@ -226,7 +229,7 @@ class Eyes:
         self.save()
         if user.id in user_pats:
             return await self.bot.say(":bell: on {} `@?\{@{}.display_name\}`\n"
-                                      "see `{}help eyes ball regex` for an explanation"
+                                      "see `{}help eyes ball regex` for more information"
                                       .format(user, user.id, ctx.prefix))
         await self.bot.say(":no_bell: on {}".format(user))
 
@@ -239,7 +242,7 @@ class Eyes:
         self.save()
         if bell_pat["OWNER"]:
             return await self.bot.say(":bell: everywhere on `@?\{@{}.display_name\}`\n"
-                                      "see `{}help eyes ball regex` for an explanation"
+                                      "see `{}help eyes ball regex` for more information"
                                       .format(author.id, ctx.prefix))
         await self.bot.say(":no_bell:")
 
@@ -248,13 +251,32 @@ class Eyes:
         """👀 🔔/🔕 toggle regex directly
         leave blank to list regexes of the current environment
 
-        """  # use in pm to toggle global regexes
+        regexes formatted with every user and channel.
+        access them and their members via {@user_id.attribute} and {#channel_id.attribute}
+        for example, '[p]eyes bell user' just adds the following regex:
+        @?{@123456683648764.display_name}
+        """  # use in pm to toggle and lost global regexes
         server = ctx.message.server
-        channel = ctx.message.channel
-        author = ctx.message.author
         empty = deepcopy(EMPTY_REGEX_SETS)
         re_pats = self.settings["BELL_PATTERNS"].setdefault(server.id, empty)
-        re_pats
+        re_pats = re_pats["RAW"]
+        if pattern is None:
+            if not re_pats:
+                await self.bot.say('none :no_bell:')
+            else:
+                msg = ':bell: on: `{}`'
+                msg = msg.format('|'.join(re_pats))
+                await self.bot.say(msg)
+            return
+
+        try:
+            re_pats.remove(pattern)
+        except ValueError:
+            re_pats.append(pattern)
+        self.save()
+        if pattern in re_pats:
+            return await self.bot.say(":bell: on `{}`\n".format(pattern))
+        await self.bot.say(":no_bell: on {}".format(pattern))
 
     def get_content(m):
         if not m.clean_content:

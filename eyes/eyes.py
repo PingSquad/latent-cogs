@@ -276,7 +276,8 @@ class Eyes:
         if content.startswith(C.FAIL):
             resume = C.FAIL
         return re.sub(self.settings['BELL_PATTERN'],
-                      C.ENDC + C.BELL + C.OKBLUE + r'\g<0>' + resume,
+                      # C.ENDC +   # shouldn't be needed
+                      C.BELL + C.OKBLUE + r'\g<0>' + resume,
                       content)
 
     async def on_message(self, msg):
@@ -302,7 +303,7 @@ def pad(content):
 
 def max_channel_length(msg):
     return max([len(c.name) for c in msg.server.channels
-                if c.type == msg.channel.type])
+                if c.type == msg.channel.type])  # ok?
 
 
 def check_folders():

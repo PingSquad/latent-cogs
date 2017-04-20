@@ -5,6 +5,7 @@ from cogs.utils import checks
 import red
 from __main__ import send_cmd_help
 import asyncio
+import os
 import re
 import time
 import datetime as dt

@@ -9,6 +9,7 @@ import os
 import re
 import time
 import datetime as dt
+from enum import Enum
 from copy import deepcopy
 from random import randint
 from random import choice as randchoice
@@ -18,31 +19,16 @@ STRF             = "%I:%M%p"
 EMPTY_REGEX_SETS = {"USERS": [], "RAW": []}
 
 
-class C:
-    HEADER    = '\033[95m'
-    OKBLUE    = '\033[94m'
-    OKGREEN   = '\033[92m'
-    WARNING   = '\033[93m'
-    FAIL      = '\033[91m'
-    ENDC      = '\033[0m'
+class C(Enum):
+    PURPLE    = '\033[95m'
+    BLUE      = '\033[94m'
+    GREEN     = '\033[92m'
+    YELLOW    = '\033[93m'
+    RED       = '\033[91m'
+    END       = '\033[0m'
     BOLD      = '\033[1m'
     UNDERLINE = '\033[4m'
     BELL      = '\a'
-
-    def blue(c):
-        return C.OKBLUE + c + C.ENDC
-    def purple(c):
-        return C.HEADER + c + C.ENDC
-    def green(c):
-        return C.OKGREEN + c + C.ENDC
-    def yellow(c):
-        return C.WARNING + c + C.ENDC
-    def red(c):
-        return C.FAIL + c + C.ENDC
-    def bold(c):
-        return C.BOLD + c + C.ENDC
-    def undeline(c):
-        return C.UNDERLINE + c + C.ENDC
 
 
 # REGEX:
@@ -282,6 +268,7 @@ class Eyes:
             return pad('[EMBED] TITLE: ' + embed['title'])
         return pad(m.clean_content)
 
+    # we should probably make a stack of colors
     def highlight_me(self, content, server):
         resume = C.ENDC
         if content.startswith(C.WARNING):

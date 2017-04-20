@@ -296,9 +296,8 @@ class Eyes:
         if not self.log_toggled(msg.channel):
             return
 
-        ms = dt.datetime.now().strftime('%H:%M%p')
         c = self.highlight_bells(msg)
-        ms = dt.datetime.now().strftime('%H:%M%p')
+        ms = dt.datetime.now().strftime('%H:%M%p')  # use timestamp + TZ throughout
         mcl = max_channel_length(msg)
         ms += ' #{:<{}} @{}:{}'.format(msg.channel.name, mcl, msg.author, c)
         print(ms)

@@ -19,16 +19,90 @@ STRF             = "%I:%M%p"
 EMPTY_REGEX_SETS = {"USERS": [], "RAW": []}
 
 
-class C(Enum):
-    PURPLE    = '\033[95m'
-    BLUE      = '\033[94m'
-    GREEN     = '\033[92m'
-    YELLOW    = '\033[93m'
-    RED       = '\033[91m'
-    END       = '\033[0m'
-    BOLD      = '\033[1m'
-    UNDERLINE = '\033[4m'
-    BELL      = '\a'
+# look into termcolor/colorama or similar later
+class ColoredString:
+    """Call its methods to build up a string of various colors and formatting"""
+
+    def __init__(self, starting_color: Color=Color.DEFAULT):
+        self._colors = [(starting_color, 0)]
+        self._string = ''
+
+    @property
+    def color(self):
+        return self._colors[-1][0]
+
+    @color.setter
+    def color(self, color: Color=Color.DEFAULT):
+        self._colors.append((color, len(self._string)))
+
+    def __iadd__(self, other: str):
+        if Color[other]:
+            return NotImplemented
+        self._string += other
+
+    def __add__(self, other):
+        return NotImplemented
+
+    def __str__(self):  # need to build string
+        return self._string + Color.END
+
+    def switch_color(self, color: Color):
+        self.color = color
+        self._string += self.color
+
+    def bell(self):
+        self._string += Color.BELL
+
+    # use this as re.sub
+    def highlight_pattern(self, pattern, color: Color, **kwargs):
+        re.sub(pattern,
+               # Color.END +   # shouldn't be needed
+               color + r'\g<0>' + self.color,
+               self._string, **kwargs)
+
+    def highlight(self, string, color: Color):
+        color, self.color = self.color, color
+        self += string
+        self.color = color
+
+
+class Color(Enum):
+    BLACK         = 30
+    RED           = 31
+    GREEN         = 32
+    YELLOW        = 33
+    BLUE          = 34
+    MAGENTA       = 35
+    CYAN          = 36
+    WHITE         = 37
+    BRIGHT_RED    = 91
+    BRIGHT_GREEN  = 92
+    BRIGHT_YELLOW = 93
+    BRIGHT_BLUE   = 94
+    BRIGHT_PURPLE = 95
+
+
+DEFAULT   = '\033[0m'
+BELL      = '\a'
+
+class Style(Enum):
+    BOLD      = 1
+    DIM       = 2
+    ITALICS   = 3
+    UNDERLINE = 4
+
+class Background(Enum):
+    BLACK   = 40
+    RED     = 41
+    GREEN   = 42
+    YELLOW  = 43
+    BLUE    = 44
+    MAGENTA = 45
+    CYAN    = 46
+    WHITE   = 47
+
+class TermColor():
+
 
 
 # REGEX:

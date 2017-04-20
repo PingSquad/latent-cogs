@@ -318,7 +318,7 @@ def check_folders():
           os.makedirs(path)
 
 
-def check_files(bot):
+def check_files():
     default = {'SERVERS': [], 'CHANNELS': [], 'BELLS': [],
                'BELL_PATTERNS': {"OWNER": True, "GLOBALS": []},
                'TZ_OFFSET': local_timezone()}
@@ -339,7 +339,7 @@ def check_files(bot):
 
 def setup(bot: red.Bot):
     check_folders()
-    check_files(bot)
+    check_files()
     n = Eyes(bot)
     bot.add_cog(n)
 

@@ -97,7 +97,7 @@ class Eyes:
         self.save()
         await self.respond(server.id in serv_sets)
 
-    @eyes.command(pass_context=True, name="channel", no_pm=True)
+    @eyes.command(pass_context=True, name="channel", no_pm=True)  # just allow pm later?
     async def eyes_channel(self, ctx, channel: discord.Channel=None):
         """channel 👀
         defaults to current"""

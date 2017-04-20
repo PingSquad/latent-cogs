@@ -313,9 +313,9 @@ def max_channel_length(msg):
 def check_folders():
     paths = ("data/eyes", )
     for path in paths:
-      if not os.path.exists(path):
-          print("Creating {} folder...".format(path))
-          os.makedirs(path)
+        if not os.path.exists(path):
+            print("Creating {} folder...".format(path))
+            os.makedirs(path)
 
 
 def check_files():
